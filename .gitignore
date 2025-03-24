@@ -1,5 +1,25 @@
-build/
+# 编译生成的文件
 *.o
+*.obj
 *.exe
+*.dll
+*.so
+*.a
+*.lib
+*.pdb
+*.exp
+
+# 构建目录
+build/
+out/
+obj/
 *.d
-*.log
+
+# CMake 相关文件
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Visual Studio Code 相关
+.vscode/
+.c

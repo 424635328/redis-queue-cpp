@@ -2,6 +2,7 @@
 #define REDISQUEUECLIENT_H
 
 #include <string>
+#include <hiredis/hiredis.h>
 
 class RedisQueueClient {
 public:

@@ -1,16 +1,23 @@
 cmake_minimum_required(VERSION 3.10)
 
-find_package(Hiredis REQUIRED) # 确保找到 hiredis
-find_package(GTest REQUIRED)   # 查找 Google Test (你需要先安装 Google Test)
+# 移除 find_package(Hiredis)
+# find_package(Hiredis REQUIRED)
+
+find_package(GTest REQUIRED)
 
 include_directories(${GTEST_INCLUDE_DIRS})
-include_directories(../include) # 添加 include 目录
-include_directories(../src) # 如果没有单独的 include 目录
+include_directories(../include)
+include_directories(../src)
+
+# 手动添加 hiredis 的 include 目录
+include_directories(/usr/include/hiredis) # 确保这个路径正确
 
 enable_testing()
 
 add_executable(RedisQueueClient_test RedisQueueClient_test.cpp ../src/RedisQueueClient.cpp)
-target_link_libraries(RedisQueueClient_test GTest::gtest_main Hiredis::hiredis)
+
+# 手动链接 hiredis 库
+target_link_libraries(RedisQueueClient_test GTest::gtest_main /usr/lib/x86_64-linux-gnu/libhiredis.so) # 确保这个路径正确
 
 include(GoogleTest)
-gtest_discover_tests(RedisQueueClient_test) #自动发现 test cases
+gtest_discover_tests(RedisQueueClient_test)
