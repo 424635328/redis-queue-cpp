@@ -12,7 +12,7 @@ include_directories(include)
 include_directories(src)
 include_directories(${HIREDIS_INCLUDE_DIR})
 
-# 注释掉 find_package
+# find_package
 # set(Hiredis_FIND_VERSION_EXACT TRUE)
 # find_package(Hiredis REQUIRED VERSION 0.14.1)
 
@@ -22,5 +22,5 @@ add_executable(redis_queue_client src/main.cpp src/RedisQueueClient.cpp)
 #  手动链接 hiredis 库
 target_link_libraries(redis_queue_client ${HIREDIS_LIBRARY})
 
-# 移除测试目录
+# 测试目录
 add_subdirectory(test)

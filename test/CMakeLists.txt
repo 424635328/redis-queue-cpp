@@ -1,7 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
-
-# 移除 find_package(Hiredis)
-# find_package(Hiredis REQUIRED)
+cmake_minimum_required(VERSION 3.22.1)
 
 find_package(GTest REQUIRED)
 

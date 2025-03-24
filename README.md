@@ -1,14 +1,17 @@
 # Redis 消息队列客户端 (C++)
 
-一个轻量级的，基于 Redis 的消息队列客户端，使用 C++ 和 hiredis 实现。
+一个轻量级的、基于 Redis 的消息队列客户端，使用 C++ 和 hiredis 实现。
 
 ## 目录
 
 1.  [特性](#特性)
 2.  [依赖](#依赖)
 3.  [构建和安装](#构建和安装)
+    *   [通用构建步骤](#通用构建步骤)
     *   [Ubuntu](#ubuntu)
     *   [Windows (MinGW)](#windows-mingw)
+    *   [macOS](#macos)
+    *   [常见构建问题及解决方案](#常见构建问题及解决方案)
 4.  [使用方法](#使用方法)
     *   [基本示例](#基本示例)
 5.  [功能扩展](#功能扩展)
@@ -31,109 +34,172 @@
 *   **阻塞接收:** 支持设置超时时间的阻塞接收消息。
 *   **队列长度:** 获取当前消息队列的长度。
 *   **轻量级:** 最小化的依赖和占用空间。
+*   **支持优先级队列:** 可以发送带有优先级的消息，优先级高的消息会先被消费。
+*   **支持延迟队列:** 可以发送延迟消息，指定消息在未来某个时间点才能被消费。
 
 ## 依赖
 
 *   [hiredis](https://github.com/redis/hiredis): 一个极简的 Redis C 客户端库。
 *   [CMake](https://cmake.org/):  跨平台的构建系统生成器。
-*   (可选) [Google Test](https://github.com/google/googletest): 用于编写和运行单元测试 (当前由于构建问题被禁用，参见 [发展方向](#发展方向))。
+*   (可选) [Google Test](https://github.com/google/googletest): 用于编写和运行单元测试。
 
 ## 构建和安装
 
-按照以下说明在你的系统上构建和安装该库。
+以下说明指导你在不同系统上构建和安装该库。
+
+### 通用构建步骤
+
+1.  **安装依赖:** 确保安装了所有必要的依赖项（hiredis、CMake）。
+2.  **克隆仓库:**
+    ```bash
+    git clone <repository_url>
+    cd redis-queue-cpp
+    ```
+3.  **创建构建目录:**
+    ```bash
+    mkdir build
+    cd build
+    ```
+4.  **生成构建文件:** 使用 CMake 生成对应平台的构建文件（例如，Makefile、Visual Studio 项目等）。
+5.  **构建项目:** 使用平台对应的构建工具（例如，make、msbuild 等）构建项目。
+6.  **运行可执行文件:** 构建成功后，运行生成的可执行文件。
 
 ### Ubuntu
 
 1.  **安装依赖:**
-
     ```bash
     sudo apt update
-    sudo apt install libhiredis-dev cmake
+    sudo apt install libhiredis-dev cmake build-essential
     ```
-
-2.  **克隆仓库:**
-
-    ```bash
-    git clone <repository_url>
-    cd redis-queue-cpp
-    ```
-
-3.  **创建构建目录:**
-
-    ```bash
-    mkdir build
-    cd build
-    ```
-
-4.  **使用 CMake 配置项目:**
-
+2.  **配置项目:**
     ```bash
     cmake ..
     ```
-
-    如果 CMake 无法找到 `hiredis`，请确保 `libhiredis-dev` 已正确安装。如果问题仍然存在，你可能需要在 CMake 命令中手动指定 `hiredis` 的 include 和库文件目录。当前的 `CMakeLists.txt` 文件手动指定了这些路径，以避免配置问题。
-
-5.  **构建项目:**
-
+3.  **构建项目:**
     ```bash
     make
     ```
-
-6.  **运行可执行文件:**
-
+4.  **运行示例程序 (可选):**
     ```bash
     ./redis_queue_client
     ```
+5. **运行测试 (可选):**
+   ```bash
+   ./test/RedisQueueClient_test
+   ```
 
 ### Windows (MinGW)
 
 1.  **安装 MSYS2:**
-
     *   从 [https://www.msys2.org/](https://www.msys2.org/) 下载并安装 MSYS2。
     *   打开 MSYS2 MinGW 64-bit 终端。
-
 2.  **安装 MinGW-w64 工具链:**
-
     ```bash
-    pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb
+    pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb mingw-w64-x86_64-cmake
     ```
-
-3.  **安装 CMake:**
-
-    *   从 [https://cmake.org/download/](https://cmake.org/download/) 下载并安装 CMake。
-    *   确保在安装过程中将 CMake 添加到系统 PATH。
-
-4.  **克隆仓库:**
-
+3.  **安装 hiredis:**
+        ```bash
+        pacman -S mingw-w64-x86_64-hiredis
+        ```
+4.  **克隆仓库 (如果还没有克隆):**
     ```bash
     git clone <repository_url>
     cd redis-queue-cpp
     ```
-
 5.  **创建构建目录:**
-
     ```bash
     mkdir build
     cd build
     ```
-
-6.  **使用 CMake 配置项目:**
-
+6.  **配置项目:**
     ```bash
     cmake -G "MinGW Makefiles" ..
     ```
 
 7.  **构建项目:**
-
     ```bash
     mingw32-make
     ```
-
-8.  **运行可执行文件:**
-
+8.  **运行示例程序 (可选):**
     ```bash
     .\redis_queue_client.exe
     ```
+
+9. **运行测试 (可选):**
+   ```bash
+   .\test\RedisQueueClient_test.exe
+   ```
+
+### macOS
+
+1.  **安装 Homebrew (如果尚未安装):**
+    ```bash
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    ```
+2.  **安装依赖:**
+    ```bash
+    brew update
+    brew install hiredis cmake
+    ```
+3.  **克隆仓库 (如果还没有克隆):**
+    ```bash
+    git clone <repository_url>
+    cd redis-queue-cpp
+    ```
+4.  **创建构建目录:**
+    ```bash
+    mkdir build
+    cd build
+    ```
+5.  **配置项目:**
+    ```bash
+    cmake ..
+    ```
+6.  **构建项目:**
+    ```bash
+    make
+    ```
+7. **运行示例程序 (可选):**
+    ```bash
+    ./redis_queue_client
+    ```
+8. **运行测试 (可选):**
+   ```bash
+   ./test/RedisQueueClient_test
+   ```
+
+### 常见构建问题及解决方案
+
+*   **找不到 `hiredis`:**
+    *   **问题:** CMake 无法找到 `hiredis` 库。
+    *   **解决方案:**
+        *   确保 `hiredis` 已正确安装（使用包管理器或手动构建）。
+        *   在 CMake 命令中手动指定 `hiredis` 的 include 和库文件目录:
+          ```cmake
+          cmake -DHIREDIS_INCLUDE_DIR=/path/to/hiredis/include -DHIREDIS_LIBRARY=/path/to/hiredis/lib/libhiredis.a ..
+          ```
+        * 对于MSYS2 MinGW，确保hiredis是通过pacman安装的，并且使用MinGW 64-bit 终端。
+
+*   **链接错误 (undefined reference):**
+    *   **问题:** 链接器无法找到 `hiredis` 函数的定义。
+    *   **解决方案:**
+        *   确认 CMake 正确地链接了 `hiredis` 库。  检查 `target_link_libraries` 命令是否包含 `hiredis`。
+        *  确保你的 CMakeLists.txt 中 `-DHiredis_FOUND` 为 TRUE
+
+*   **编译错误 (C++ 标准):**
+    *   **问题:**  编译过程中出现与 C++ 标准相关的错误。
+    *   **解决方案:**
+        *   在 `CMakeLists.txt` 中设置 C++ 标准：
+          ```cmake
+          set(CMAKE_CXX_STANDARD 11) # 或者更高版本，例如 14, 17, 20
+          set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+          ```
+*   **Windows 下编译问题:**
+        * 确保使用 MinGW 64-bit 终端进行编译。
+        * 检查 MinGW 的 bin 目录是否已添加到系统 PATH 环境变量中。
+*   **测试用例运行失败:**
+       * 确保 Redis 服务器正在运行，并且监听在 localhost:6379。
+       * 检查测试用例使用的队列名称是否与你的配置匹配。
 
 ## 使用方法
 
@@ -154,19 +220,20 @@ int main() {
         client.sendMessage("消息 2");
 
         // 接收消息
-        std::string message1 = client.receiveMessage(5); // 5 秒超时
-        if (!message1.empty()) {
-            std::cout << "接收到的消息: " << message1 << std::endl;
+        std::pair<std::string, std::string> received1 = client.receiveMessage(5); // 5 秒超时
+        if (!received1.second.empty()) {
+            std::cout << "接收到的消息: " << received1.second << ", ID: " << received1.first << std::endl;
         } else {
             std::cout << "在超时时间内没有收到消息。" << std::endl;
         }
 
-        std::string message2 = client.receiveMessage(5); // 5 秒超时
-        if (!message2.empty()) {
-            std::cout << "接收到的消息: " << message2 << std::endl;
+        std::pair<std::string, std::string> received2 = client.receiveMessage(5); // 5 秒超时
+        if (!received2.second.empty()) {
+            std::cout << "接收到的消息: " << received2.second << ", ID: " << received2.first << std::endl;
         } else {
             std::cout << "在超时时间内没有收到消息。" << std::endl;
         }
+
 
         // 获取队列长度
         long long queueLength = client.getQueueLength();
@@ -219,7 +286,7 @@ int main() {
 
 ### 单元测试 (Unit Testing)
 
-添加单元测试以验证代码的正确性。  由于目前构建系统中存在一些问题，单元测试功能被暂时禁用。  未来的工作将集中在解决这些构建问题，并启用单元测试。
+添加单元测试以验证代码的正确性。  建议使用 Google Test 框架。
 
 ### 错误处理和重试 (Error Handling and Retries)
 
