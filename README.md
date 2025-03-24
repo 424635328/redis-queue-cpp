@@ -52,7 +52,7 @@
 1.  **安装依赖:** 确保安装了所有必要的依赖项（hiredis、CMake）。
 2.  **克隆仓库:**
     ```bash
-    git clone <repository_url>
+    git clone https://github.com/424635328/redis-queue-cpp
     cd redis-queue-cpp
     ```
 3.  **创建构建目录:**
@@ -122,12 +122,12 @@
     ```
 8.  **运行示例程序 (可选):**
     ```bash
-    .\redis_queue_client.exe
+    ./redis_queue_client.exe
     ```
 
 9. **运行测试 (可选):**
    ```bash
-   .\test\RedisQueueClient_test.exe
+   ./test/RedisQueueClient_test.exe
    ```
 
 ### macOS
@@ -210,37 +210,55 @@
 ```c++
 #include "RedisQueueClient.h"
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 int main() {
     try {
-        RedisQueueClient client("localhost", 6379, "my_queue");
+        RedisQueueClient client("localhost", 6379, "my_cpp_queue");
 
-        // 发送消息
-        client.sendMessage("消息 1");
-        client.sendMessage("消息 2");
+        // Producer
+        client.sendMessage("High priority message", 1); // 高优先级
+        client.sendMessage("Normal message"); // 默认优先级
+        client.sendDelayedMessage("Delayed message", 20);
+        std::cout << "Messages sent." << std::endl;
 
-        // 接收消息
-        std::pair<std::string, std::string> received1 = client.receiveMessage(5); // 5 秒超时
+        // Consumer
+        std::cout << "Waiting for messages..." << std::endl;
+
+        // 先接收高优先级消息
+        std::pair<std::string, std::string> received1 = client.receiveMessage(5);
         if (!received1.second.empty()) {
-            std::cout << "接收到的消息: " << received1.second << ", ID: " << received1.first << std::endl;
+            std::cout << "Received message: " << received1.second << ", ID: " << received1.first << std::endl;
         } else {
-            std::cout << "在超时时间内没有收到消息。" << std::endl;
+            std::cout << "No message received within timeout." << std::endl;
         }
 
-        std::pair<std::string, std::string> received2 = client.receiveMessage(5); // 5 秒超时
+        // 接收普通优先级消息
+        std::pair<std::string, std::string> received2 = client.receiveMessage(5);
         if (!received2.second.empty()) {
-            std::cout << "接收到的消息: " << received2.second << ", ID: " << received2.first << std::endl;
+            std::cout << "Received message: " << received2.second << ", ID: " << received2.first << std::endl;
         } else {
-            std::cout << "在超时时间内没有收到消息。" << std::endl;
+            std::cout << "No message received within timeout." << std::endl;
         }
 
+        // 等待延迟消息可以被消费
+        std::this_thread::sleep_for(std::chrono::seconds(10));
 
-        // 获取队列长度
+        // 接收延迟消息
+        std::pair<std::string, std::string> received3 = client.receiveMessage(5);
+        if (!received3.second.empty()) {
+            std::cout << "Received message: " << received3.second << ", ID: " << received3.first << std::endl;
+        } else {
+            std::cout << "No message received within timeout." << std::endl;
+        }
+
         long long queueLength = client.getQueueLength();
-        std::cout << "队列长度: " << queueLength << std::endl;
+        std::cout << "Queue length: " << queueLength << std::endl;
+
 
     } catch (const std::exception& e) {
-        std::cerr << "异常: " << e.what() << std::endl;
+        std::cerr << "Exception: " << e.what() << std::endl;
         return 1;
     }
 
@@ -254,7 +272,7 @@ int main() {
 
 ### 消息确认 (Acknowledgement)
 
-实现消息确认机制，以确保消息被成功处理。 这可能涉及到：
+实现消息确认机制，以确保消息被成功处理。 可能涉及到：
 
 *   一个单独的 "确认" 队列，消费者在成功处理消息后将消息 ID 放入该队列。
 *   生产者定期检查 "确认" 队列，并将已确认的消息从主队列中删除。
@@ -262,15 +280,15 @@ int main() {
 
 ### 消息持久化 (Persistence)
 
-使用 Redis 的持久化功能 (RDB 或 AOF) 来确保消息在服务器重启后仍然可用。 这可以通过配置 Redis 的持久化选项来实现。
+使用 Redis 的持久化功能 (RDB 或 AOF) 来确保消息在服务器重启后仍然可用。 可以通过配置 Redis 的持久化选项来实现。
 
 ### 消息优先级 (Prioritization)
 
-允许生产者为消息分配优先级，并确保消费者按照优先级顺序接收消息。 这可以通过使用 Redis 的 Sorted Set 数据结构来实现。
+允许生产者为消息分配优先级，并确保消费者按照优先级顺序接收消息。 可以通过使用 Redis 的 Sorted Set 数据结构来实现。
 
 ### 发布/订阅 (Publish/Subscribe)
 
-支持发布/订阅模式，允许生产者将消息发布到多个订阅者。 这可以通过使用 Redis 的 Pub/Sub 功能来实现。
+支持发布/订阅模式，允许生产者将消息发布到多个订阅者。 可以通过使用 Redis 的 Pub/Sub 功能来实现。
 
 ## 发展方向
 
